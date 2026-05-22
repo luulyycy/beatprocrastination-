@@ -1,199 +1,362 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>戰勝拖延行動清單</title>
+    <title>戰勝拖延行動清單 ｜ 陪你溫柔出發</title>
     <style>
         /* ==========================================
-           全域與排版樣式
+           1. 溫暖治癒系與現代排版變數
            ========================================== */
         :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg: #f3f4f6;
+            --primary: #e07a5f; /* 溫馨的肉桂瓦橘色 */
+            --primary-hover: #c9654b;
+            --primary-light: #fbeee6; /* 極柔和的蜜桃粉 */
+            --bg: #faf7f2; /* 溫暖的晨光燕麥乳白 */
             --card-bg: #ffffff;
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-            --border: #e5e7eb;
-            --success: #10b981;
+            --text-main: #3d342e; /* 柔和的深可可色，拒絕死黑 */
+            --text-muted: #8c7e74; /* 暖灰褐色 */
+            --border: #f0e6df; /* 燕麥奶 border */
+            --border-hover: #d9c5b6;
+            --success: #606c38; /* 療癒的森林草本綠 */
+            --success-light: #f4f7f4;
+            --cheer: #f4a261; /* 溫暖的能量橘橙色 */
+            --shadow-sm: 0 4px 12px -2px rgba(97, 72, 54, 0.04);
+            --shadow-md: 0 16px 36px -4px rgba(97, 72, 54, 0.06), 0 4px 16px -2px rgba(97, 72, 54, 0.02);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background-color: var(--bg);
             color: var(--text-main);
-            padding: 20px 20px 120px 20px; 
+            /* 底部的 padding 提供充足的呼吸空間與滾動區域 */
+            padding: 20px 20px 140px 20px; 
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            letter-spacing: -0.01em;
+            -webkit-font-smoothing: antialiased;
         }
 
         header { text-align: center; margin-bottom: 20px; }
-        header h1 { color: var(--primary); font-size: 2rem; margin-bottom: 8px; }
+        header h1 { 
+            color: var(--text-main); 
+            font-size: 2.25rem; 
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        header p {
+            margin-top: 8px;
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
 
         /* ==========================================
-           導覽列 (Row of Buttons)
+           2. 頂部高級圓角導覽列
            ========================================== */
         .nav-buttons {
-            display: flex; gap: 10px; margin-bottom: 30px;
-            background: var(--card-bg); padding: 10px; border-radius: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05); flex-wrap: wrap; justify-content: center;
+            display: flex; gap: 6px; margin-bottom: 32px;
+            background: #ffffff; padding: 6px; border-radius: 100px;
+            box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+            flex-wrap: wrap; justify-content: center;
         }
         .nav-btn {
-            background: transparent; border: none; padding: 10px 20px;
-            border-radius: 20px; font-size: 1rem; font-weight: 600;
-            color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+            background: transparent; border: none; padding: 12px 26px;
+            border-radius: 100px; font-size: 0.95rem; font-weight: 600;
+            color: var(--text-muted); cursor: pointer; transition: var(--transition);
         }
-        .nav-btn:hover { background: #eef2ff; color: var(--primary); }
+        .nav-btn:hover { color: var(--primary); background: var(--primary-light); }
         .nav-btn.active { background: var(--primary); color: white; }
 
         /* 視圖切換 */
-        .view-section { display: none; width: 100%; max-width: 800px; animation: fadeIn 0.3s; }
+        .view-section { display: none; width: 100%; max-width: 680px; animation: fadeIn 0.4s ease-out; }
         .view-section.active { display: block; }
-        .section-title { margin-bottom: 20px; color: var(--text-main); text-align: center; }
+        .section-title { margin-bottom: 24px; color: var(--text-main); text-align: center; font-size: 1.5rem; font-weight: 700;}
 
         /* ==========================================
-           表單區塊樣式
+           3. 暖心溫和輸入表單
            ========================================== */
         .task-creation-card {
-            background: var(--card-bg); padding: 24px; border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            background: var(--card-bg); padding: 32px; border-radius: 20px;
+            box-shadow: var(--shadow-md); border: 1px solid var(--border);
         }
-        .form-group { margin-bottom: 16px; }
-        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.95rem; }
-        .help-text { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+        .form-group { margin-bottom: 24px; }
+        label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; color: var(--text-main); }
+        .help-text { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5; }
         
         input[type="number"]::-webkit-inner-spin-button, 
         input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         
         input[type="text"], input[type="number"], select {
-            width: 100%; padding: 10px; border: 1px solid var(--border);
-            border-radius: 6px; font-size: 1rem; margin-bottom: 8px;
+            width: 100%; padding: 14px 18px; border: 1px solid var(--border);
+            border-radius: 12px; font-size: 1rem; margin-bottom: 10px;
+            background: #fffdfb; transition: var(--transition);
+            color: var(--text-main);
         }
-        input:focus, select:focus { outline: none; border-color: var(--primary); }
+        input:focus, select:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px var(--primary-light); }
         .time-input-wrapper { position: relative; }
-        .time-suffix { position: absolute; right: 15px; top: 12px; color: var(--text-muted); }
+        .time-suffix { position: absolute; right: 18px; top: 16px; color: var(--text-muted); font-size: 0.9rem; pointer-events: none;}
+
+        #subTasksContainer input { display: block; animation: fadeIn 0.2s ease-out; }
 
         button.btn-primary, button.btn-submit-reflection {
-            background: var(--primary); color: white; padding: 14px; font-size: 1.05rem;
-            width: 100%; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 10px;
+            background: var(--primary); color: white; padding: 16px; font-size: 1.05rem;
+            width: 100%; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; 
+            margin-top: 12px; transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(224, 122, 95, 0.2);
         }
-        button.btn-primary:hover { background: var(--primary-hover); }
+        button.btn-primary:hover, button.btn-submit-reflection:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        button.btn-primary:active, button.btn-submit-reflection:active { transform: translateY(0); }
+        
         button.btn-secondary {
-            background: #e5e7eb; color: var(--text-main); padding: 8px 16px;
-            font-size: 0.9rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;
+            background: var(--primary-light); color: var(--primary); padding: 10px 18px;
+            font-size: 0.875rem; border: 1px dashed var(--primary); border-radius: 10px; cursor: pointer; font-weight: 600;
+            transition: var(--transition); display: inline-block; margin-top: 4px;
+        }
+        button.btn-secondary:hover { background: var(--primary); color: white; border-color: transparent; }
+
+        /* 切換開關樣式 */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            background: #fffdfb;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+        .switch-container input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+        .switch-label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
         }
 
         /* ==========================================
-           清單與卡片樣式
+           4. 舒壓任務卡片清單
            ========================================== */
-        .task-list { display: flex; flex-direction: column; gap: 16px; }
-        .empty-state { text-align: center; padding: 40px; color: var(--text-muted); background: var(--card-bg); border-radius: 12px; border: 2px dashed var(--border); }
+        .task-list { display: flex; flex-direction: column; gap: 20px; }
+        .empty-state { 
+            text-align: center; padding: 56px 36px; color: var(--text-muted); 
+            background: var(--card-bg); border-radius: 20px; border: 2px dashed var(--border); 
+            font-size: 0.95rem; line-height: 1.6;
+        }
 
         .task-card {
-            background: var(--card-bg); border-radius: 8px; padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 5px solid var(--primary);
+            background: var(--card-bg); border-radius: 20px; padding: 28px;
+            box-shadow: var(--shadow-md); border: 1px solid var(--border);
+            transition: var(--transition); position: relative; overflow: hidden;
         }
-        .task-card.status-done { border-left-color: var(--success); opacity: 0.9; }
-
-        .card-header { margin-bottom: 16px; }
-        .task-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
-        .task-meta { font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 12px; }
-        .badge { background: #f3f4f6; padding: 4px 8px; border-radius: 6px; font-weight: 600; }
+        .task-card:hover { transform: translateY(-2px); box-shadow: 0 24px 40px -4px rgba(97, 72, 54, 0.08); }
         
-        .progress-section { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; font-size: 0.85rem;}
-        progress { flex-grow: 1; height: 8px; border-radius: 4px; }
-        progress::-webkit-progress-bar { background: var(--border); border-radius: 4px; }
-        progress::-webkit-progress-value { background: var(--primary); border-radius: 4px; }
+        /* 側邊精緻指示條 (圓角暖色) */
+        .task-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--primary); }
+        .task-card.status-done::before { background: var(--success); }
 
-        .sub-tasks-list { list-style: none; margin-bottom: 16px; font-size: 0.95rem; }
-        .sub-tasks-list li { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-        .sub-tasks-list input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+        .card-header { margin-bottom: 20px; }
+        .task-title { font-size: 1.35rem; font-weight: 700; margin-bottom: 12px; color: var(--text-main); line-height: 1.35;}
+        .task-meta { font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 10px; flex-wrap: wrap; }
+        .badge { background: #faf5f0; padding: 6px 12px; border-radius: 8px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 4px; border: 1px solid rgba(224, 122, 95, 0.08);}
+        .badge.public-badge { background: #ebf8ff; color: #2b6cb0; border-color: rgba(66, 153, 225, 0.1); }
+        
+        /* 自訂漸層進度條 */
+        .progress-section { margin-bottom: 20px; display: flex; align-items: center; gap: 12px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted);}
+        progress { flex-grow: 1; height: 8px; border-radius: 100px; appearance: none; -webkit-appearance: none; overflow: hidden; }
+        progress::-webkit-progress-bar { background: #f5ece5; border-radius: 100px; }
+        progress::-webkit-progress-value { background: linear-gradient(90deg, var(--primary) 0%, #f0a58e 100%); border-radius: 100px; }
 
+        /* 子任務清單 */
+        .sub-tasks-list { list-style: none; margin-bottom: 24px; font-size: 0.95rem; background: #fffbf9; padding: 18px; border-radius: 12px; border: 1px solid var(--border);}
+        .sub-tasks-list li { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+        .sub-tasks-list li:last-child { margin-bottom: 0; }
+        .sub-tasks-list input[type="checkbox"] { width: 18px; height: 18px; border-radius: 6px; accent-color: var(--primary); cursor: pointer; margin-top: 2px;}
+        .sub-tasks-list label { display: inline; cursor: pointer; font-weight: 500; color: #4a3e3d; line-height: 1.4;}
+
+        /* 主任務動作解鎖區 */
         .main-action label {
-            display: flex; align-items: center; gap: 8px; padding: 12px;
-            background: #f8fafc; border: 1px dashed var(--border); border-radius: 6px; cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; gap: 12px; padding: 16px;
+            background: #fff; border: 1px dashed var(--border-hover); border-radius: 12px; cursor: pointer; transition: var(--transition);
         }
-        .main-action.locked label { opacity: 0.6; cursor: not-allowed; background: #f3f4f6; }
-        .unlock-msg { font-size: 0.85rem; color: #dc2626; margin-left: auto; }
+        .main-action label:hover:not(.locked) { border-color: var(--primary); background: #fdfaf8; }
+        .main-action.locked label { opacity: 0.6; cursor: not-allowed; background: #faf7f5; border-style: solid; }
+        .main-action input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--primary); }
+        .unlock-msg { font-size: 0.85rem; font-weight: 700; color: var(--primary); margin-left: auto; background: var(--primary-light); padding: 4px 10px; border-radius: 6px;}
 
-        .state-reflecting-view { background: #f0fdfa; padding: 16px; border-radius: 8px; border: 1px solid #ccfbf1; }
-        .state-reflecting-view h4 { color: #0f766e; margin-bottom: 12px; }
+        /* 反思視圖 */
+        .state-reflecting-view { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); padding: 24px; border-radius: 16px; border: 1px solid #fde68a; margin-top: 10px; animation: fadeIn 0.3s;}
+        .state-reflecting-view h4 { color: #b45309; margin-bottom: 16px; font-size: 1.1rem; font-weight: 700; }
+        .state-reflecting-view input, .state-reflecting-view select { background: #fff; border-color: #f59e0b; }
         
-        .state-done-view { background: #ecfdf5; padding: 16px; border-radius: 8px; font-size: 0.95rem; }
-        .reflection-results p { margin-bottom: 6px; }
-        .congrats-message { margin-top: 12px; font-weight: bold; color: var(--success); padding-top: 12px; border-top: 1px dashed #a7f3d0;}
-        .strike { text-decoration: line-through; color: var(--text-muted); }
+        /* 完成紀錄視圖 */
+        .state-done-view { background: var(--success-light); padding: 20px; border-radius: 16px; font-size: 0.95rem; border: 1px solid #c2ffd6; animation: fadeIn 0.3s;}
+        .reflection-results p { margin-bottom: 8px; color: #2e4d2a; font-weight: 500;}
+        .reflection-results p strong { color: var(--success); }
+        .congrats-message { margin-top: 14px; font-weight: 700; color: #406c35; padding-top: 14px; border-top: 1px dashed #c2ffd6; font-size: 1rem;}
+        .strike { text-decoration: line-through; color: var(--text-muted) !important; opacity: 0.55; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        /* ==========================================
+           5. 社群互相加油互動區樣式
+           ========================================== */
+        .community-cheer-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px dashed var(--border);
+        }
+        .cheer-count-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+        .cheer-count-label strong {
+            color: var(--cheer);
+            font-size: 1.05rem;
+        }
+        .btn-cheer {
+            background: #fff6f0;
+            color: #d97706;
+            border: 1px solid #fde8d0;
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-cheer:hover {
+            background: var(--cheer);
+            color: white;
+            border-color: transparent;
+            transform: scale(1.05);
+        }
+
+        /* ==========================================
+           6. 溫馨暖意提示框 & 貼心提示小卡
+           ========================================== */
+        .warm-tip-card {
+            background: #fffaf0; border: 1px solid #fbd38d; border-radius: 12px;
+            padding: 16px; margin-bottom: 24px; font-size: 0.9rem; line-height: 1.5;
+            color: #dd6b20; display: flex; gap: 10px; align-items: flex-start;
+        }
+
+        /* 自訂溫馨吐司提示 */
+        .toast-container {
+            position: fixed; bottom: 30px; right: 30px; z-index: 1000;
+            display: flex; flex-direction: column; gap: 10px; pointer-events: none;
+        }
+        .toast {
+            background: #fffbf0; border: 2px solid #fbd38d; color: #c05621;
+            padding: 16px 24px; border-radius: 12px; box-shadow: var(--shadow-md);
+            font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 10px;
+            animation: slideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: auto;
+        }
+        @keyframes slideIn { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>🚀 戰勝拖延行動清單</h1>
+        <h1>☕ 戰勝拖延行動清單</h1>
+        <p>「別擔心，我們慢慢來。將大目標拆成舒服的小碎步。」</p>
     </header>
 
-    <!-- 導覽列：作為 Filter 切換器 -->
+    <!-- 頂部導覽列 -->
     <nav class="nav-buttons" id="nav-buttons">
-        <button class="nav-btn active" data-view="view-create">➕ 新增挑戰</button>
-        <button class="nav-btn" data-view="view-list" data-filter="active">🏃 進行中</button>
-        <button class="nav-btn" data-view="view-list" data-filter="done">🎉 已完成</button>
-        <button class="nav-btn" data-view="view-list" data-filter="all">📋 全部紀錄</button>
+        <button class="nav-btn active" data-view="view-create">🧸 跨出第一步</button>
+        <button class="nav-btn" data-view="view-list" data-filter="active">🌱 溫和專注中</button>
+        <button class="nav-btn" data-view="view-list" data-filter="done">✨ 克服的軌跡</button>
+        <button class="nav-btn" data-view="view-list" data-filter="all">📖 我的全紀錄</button>
+        <button class="nav-btn" data-view="view-list" data-filter="community">🫂 大家一起衝</button>
     </nav>
+
+    <!-- 提示框容器 -->
+    <div class="toast-container" id="toast-container"></div>
 
     <main style="width: 100%; display: flex; justify-content: center;">
         
         <!-- 表單視圖 -->
         <section id="view-create" class="view-section active">
-            <h2 class="section-title">建立新挑戰</h2>
+            
+            <div class="warm-tip-card">
+                <span>💡</span>
+                <div><strong>親愛的：</strong>拖延不是因為你懶，而是你的大腦在保護你遠離焦慮。試著把「預估耗時」設小一點，比如 10 分鐘，哪怕只做 5 分鐘也是很棒的開始！</div>
+            </div>
+
             <div class="task-creation-card">
                 <form id="taskForm">
                     <div class="form-group">
-                        <label for="taskName">任務名稱 (Task Name)：</label>
-                        <input type="text" id="taskName" name="taskName" placeholder="例如：完成報稅文件" required>
+                        <label for="taskName">🌻 你想試著做些什麼？ (Task Name)</label>
+                        <input type="text" id="taskName" name="taskName" placeholder="例如：寫一行程式碼、整理書桌的一角" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="estimatedTime">預估耗時 (Estimated Time)：</label>
+                        <label for="estimatedTime">⏳ 給自己一個極低的專注門檻 (Estimated Time)</label>
                         <div class="time-input-wrapper">
-                            <input type="number" id="estimatedTime" name="estimatedTime" placeholder="例如：45" min="1" required>
+                            <input type="number" id="estimatedTime" name="estimatedTime" placeholder="例如：10" min="1" required>
                             <span class="time-suffix">分鐘</span>
                         </div>
+                        <p class="help-text" style="margin-top: 4px;">先設定 10 或 15 分鐘就好，不要給自己太大負擔。</p>
                     </div>
 
                     <div class="form-group">
-                        <label for="dreadLevel">焦慮/抗拒程度 (Dread Level)：</label>
+                        <label for="dreadLevel">😨 面對它時，當下的心情阻力 (Dread Level)</label>
                         <select id="dreadLevel" name="dreadLevel" required>
-                            <option value="低">低 - 只是有點懶</option>
-                            <option value="中">中 - 覺得有些麻煩</option>
-                            <option value="高">高 - 想到就覺得壓力很大</option>
+                            <option value="低">輕微 ─ 有點想逃避，但還可以試試</option>
+                            <option value="中">中度 ─ 感覺有些繁瑣，心情起伏中</option>
+                            <option value="高">強烈 ─ 光是用想的就感到壓迫</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label>墊腳石子任務 (Stepping Stones)：</label>
-                        <p class="help-text">寫下能幫你開始的最小行動 (全部打勾後才能解鎖完成任務)</p>
+                        <label>🧱 鋪路用的墊腳石子任務 (Stepping Stones)</label>
+                        <p class="help-text">把上面的任務拆成「最不用動腦、2分鐘內可開始」的動作。全部打勾後即可開始反思！</p>
                         <div id="subTasksContainer">
-                            <input type="text" name="subTask" placeholder="子任務 1 (例如：打開電腦並登入)" required>
-                            <input type="text" name="subTask" placeholder="子任務 2 (例如：下載今年的表格)">
+                            <input type="text" name="subTask" placeholder="例如：打開電腦跟資料夾" required>
+                            <input type="text" name="subTask" placeholder="例如：寫出第一個句子的前幾個字">
                         </div>
-                        <button type="button" id="addSubTaskBtn" class="btn-secondary">+ 新增更多墊腳石</button>
+                        <button type="button" id="addSubTaskBtn" class="btn-secondary">＋ 增加一個輕鬆的小步驟</button>
                     </div>
 
-                    <button type="submit" class="btn-primary">開始挑戰</button>
+                    <!-- 溫暖微互動：公開分享勾選框 -->
+                    <div class="form-group">
+                        <label>🤝 社群陪伴共享</label>
+                        <p class="help-text">公開分享後，其他同行者也能看見您的目標，並溫柔為您打氣加油唷！</p>
+                        <label class="switch-container">
+                            <input type="checkbox" id="isPublic" name="isPublic" checked>
+                            <span class="switch-label">我想公開此挑戰，跟大家一起互相陪伴、暖心加油！</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-primary">好，溫柔地出發吧</button>
                 </form>
             </div>
         </section>
 
-        <!-- 列表視圖：單一容器，依照 recordsToShow 動態渲染 -->
+        <!-- 列表視圖 -->
         <section id="view-list" class="view-section">
-            <h2 class="section-title" id="list-title">任務列表</h2>
+            <h2 class="section-title" id="list-title">正在陪伴你的任務</h2>
             <div class="task-list" id="main-list-container"></div>
         </section>
 
@@ -206,13 +369,15 @@
                 <h3 class="task-title"></h3>
                 <div class="task-meta">
                     <span class="badge">⏳ 預估：<span class="value-est-time"></span> 分鐘</span>
-                    <span class="badge">😨 焦慮：<span class="value-dread"></span></span>
+                    <span class="badge">🧡 心情抗拒度：<span class="value-dread"></span></span>
+                    <!-- 公開狀態小標籤 (動態渲染控制) -->
+                    <span class="badge public-badge" style="display: none;">🫂 公開陪伴中</span>
                 </div>
             </header>
 
             <div class="state-active-view">
                 <div class="progress-section">
-                    <label>進度：</label>
+                    <label>墊腳石完成度：</label>
                     <progress class="task-progress" value="0" max="100"></progress>
                     <span class="progress-text">0%</span>
                 </div>
@@ -220,39 +385,45 @@
                 <div class="main-action">
                     <label>
                         <input type="checkbox" class="main-task-checkbox">
-                        <strong>我已完成主任務，準備反思！</strong>
-                        <span class="unlock-msg">🔒 需完成所有墊腳石</span>
+                        <strong>我已完成！準備和自己對話、反思 ✨</strong>
+                        <span class="unlock-msg">🔒 請先踏出墊腳石步驟</span>
                     </label>
                 </div>
             </div>
 
             <div class="state-reflecting-view" style="display: none;">
-                <h4>🎉 恭喜完成！來做個快速反思：</h4>
+                <h4>🎉 你做到了！謝謝你沒有放棄，來和自己聊聊：</h4>
                 <div class="form-group">
-                    <label>實際耗時 (Actual Time)：</label>
+                    <label>實際上花了多少時間呢？(Actual Time)</label>
                     <div class="time-input-wrapper">
-                        <input type="number" class="input-actual-time" placeholder="例如：25" min="1">
+                        <input type="number" class="input-actual-time" placeholder="例如：8" min="1">
                         <span class="time-suffix">分鐘</span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>現在的心情 (Post-Action Mood)：</label>
+                    <label>完成後，此時此刻的身體與大腦感覺：</label>
                     <select class="input-post-mood">
-                        <option value="輕鬆多了">輕鬆多了 (Relieved)</option>
-                        <option value="充滿能量">充滿能量 (Energized)</option>
-                        <option value="精疲力盡">精疲力盡 (Drained but Done)</option>
-                        <option value="覺得驕傲">覺得驕傲 (Proud)</option>
+                        <option value="輕鬆多了">真的鬆了一口氣，原來沒那麼可怕 (Relieved)</option>
+                        <option value="充滿能量">開始有手感了，心情也變好了 (Energized)</option>
+                        <option value="精疲力盡">雖然很累，但我跨過了最難的一步 (Proud but Tired)</option>
+                        <option value="覺得驕傲">我很佩服今天踏出第一步的自己 (Proud)</option>
                     </select>
                 </div>
-                <button type="button" class="btn-submit-reflection">送出並標記完成 (Done)</button>
+                <button type="button" class="btn-submit-reflection">記錄這次進步 🧡</button>
             </div>
 
             <div class="state-done-view" style="display: none;">
                 <div class="reflection-results">
                     <p><strong>⏱️ 實際耗時：</strong> <span class="res-actual-time"></span> 分鐘</p>
-                    <p><strong>✨ 任務後心情：</strong> <span class="res-post-mood"></span></p>
+                    <p><strong>🍃 跨越後的體會：</strong> <span class="res-post-mood"></span></p>
                 </div>
                 <div class="congrats-message"></div>
+            </div>
+
+            <!-- 加油互動社群版塊 (預設隱藏，由 JS 控制顯示) -->
+            <div class="community-cheer-section" style="display: none;">
+                <div class="cheer-count-label">已經收到 <strong><span class="cheers-count-value">0</span></strong> 個溫暖守護</div>
+                <button type="button" class="btn-cheer">🧡 加油 (+1)</button>
             </div>
         </article>
     </template>
@@ -265,12 +436,138 @@
         let currentView = 'view-create';
         let currentFilter = 'active';
 
+        // 1. 注入您部署好的 Google Apps Script 網頁應用程式網址
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxVC1n7GEfh9lOrRUEFTAUTollGBV_jZ7jfRG7jx4Db-XvrdUz1a54ancdJMDhB6GsJ/exec"; 
+
+        // 溫馨提示功能
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<span>🧡</span> ${message}`;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.transition = 'opacity 0.4s, transform 0.4s';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px)';
+                setTimeout(() => toast.remove(), 400);
+            }, 3500);
+        }
+
         // ==========================================
-        // Contract Functions (嚴格遵循規範)
+        // 新增：雲端同步與對應 (Sync to Sheet & Normalize)
         // ==========================================
 
         /**
-         * 1. createRecord(formData): 根據表單建立一筆新 record
+         * syncToSheet(payload): POST 同步資料至試算表後端
+         */
+        async function syncToSheet(payload) {
+            if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf("PASTE_YOUR_") === 0) {
+                console.log("未設定 APPS_SCRIPT_URL，僅使用本地儲存。");
+                return;
+            }
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain" }, // 避免 CORS 預檢請求限制
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (!result.ok) {
+                    console.error("同步失敗:", result.error);
+                }
+            } catch (err) {
+                console.error("網路連線錯誤，無法同步至雲端:", err);
+            }
+        }
+
+        /**
+         * fetchRecordsFromSheet(): 從試算表拉取最新的任務清單
+         */
+        async function fetchRecordsFromSheet() {
+            if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf("PASTE_YOUR_") === 0) {
+                throw new Error("未設定雲端後端網址");
+            }
+            const response = await fetch(APPS_SCRIPT_URL);
+            const result = await response.json();
+            if (!result.ok) throw new Error(result.error);
+            
+            // 進行正規化與防呆
+            return result.records.map(normalizeRecord);
+        }
+
+        /**
+         * normalizeRecord(record): 容錯對照，將 Sheet 的 Header 大小寫容錯並還原為前端 key
+         */
+        function normalizeRecord(record) {
+            const normalized = {};
+            const mapping = {
+                id: ["id", "ID"],
+                createdAt: ["createdAt", "CreatedAt", "Created At"],
+                status: ["status", "Status"],
+                isReflecting: ["isReflecting", "IsReflecting"],
+                taskName: ["taskName", "TaskName", "Task Name"],
+                estimatedTime: ["estimatedTime", "EstimatedTime", "Estimated Time"],
+                dreadLevel: ["dreadLevel", "DreadLevel", "Dread Level"],
+                subTasks: ["subTasks", "SubTasks", "Sub Tasks"],
+                reflection: ["reflection", "Reflection"],
+                isPublic: ["isPublic", "IsPublic", "Is Public"],
+                cheersCount: ["cheersCount", "CheersCount", "Cheers Count"]
+            };
+
+            Object.keys(mapping).forEach(frontendKey => {
+                const possibleKeys = mapping[frontendKey];
+                const foundKey = Object.keys(record).find(k => 
+                    possibleKeys.some(p => p.toLowerCase() === k.toLowerCase())
+                );
+                
+                let value = foundKey ? record[foundKey] : undefined;
+
+                // 防呆處理 JSON 陣列與物件格式轉換
+                if (frontendKey === "subTasks") {
+                    if (typeof value === "string") {
+                        try { value = JSON.parse(value); } catch(e) { value = []; }
+                    } else if (!Array.isArray(value)) {
+                        value = [];
+                    }
+                }
+                if (frontendKey === "reflection") {
+                    if (typeof value === "string") {
+                        try { value = JSON.parse(value); } catch(e) { value = { actualTime: '', postMood: '' }; }
+                    } else if (!value || typeof value !== "object") {
+                        value = { actualTime: '', postMood: '' };
+                    }
+                }
+                if (frontendKey === "estimatedTime") {
+                    value = Number(value) || 0;
+                }
+                if (frontendKey === "cheersCount") {
+                    value = Number(value) || 0;
+                }
+                if (frontendKey === "isReflecting") {
+                    value = String(value).toLowerCase() === "true" || value === true;
+                }
+                if (frontendKey === "isPublic") {
+                    // 若為空或未定義，預設為 true (符合公開制精神)
+                    if (value === undefined || value === "") {
+                        value = true;
+                    } else {
+                        value = String(value).toLowerCase() === "true" || value === true;
+                    }
+                }
+
+                normalized[frontendKey] = value;
+            });
+            return normalized;
+        }
+
+        // ==========================================
+        // Contract Functions (遵循合約規格，新增雲端連動)
+        // ==========================================
+
+        /**
+         * 1. createRecord(formData): 建立一筆 record
          */
         function createRecord(formData) {
             const subTaskInputs = document.querySelectorAll('input[name="subTask"]');
@@ -282,31 +579,38 @@
                 }
             });
 
+            // 讀取是否公開勾選框
+            const isPublicChecked = document.getElementById('isPublic') ? document.getElementById('isPublic').checked : true;
+
             return {
                 id: Date.now().toString(),
                 createdAt: new Date().toISOString(),
-                status: 'active', // 嚴格規定：預設 active
-                isReflecting: false, // 自訂欄位：控制 UI 進入反思狀態
+                status: 'active',
+                isReflecting: false, 
                 taskName: formData.get('taskName'),
                 dreadLevel: formData.get('dreadLevel'),
                 estimatedTime: Number(formData.get('estimatedTime')),
                 subTasks: subTasks,
-                reflection: { actualTime: '', postMood: '' }
+                reflection: { actualTime: '', postMood: '' },
+                isPublic: isPublicChecked, // 新增：是否公開
+                cheersCount: 0 // 新增：初始加油打氣數為 0
             };
         }
 
         /**
-         * 2. saveData(record): 只負責新增到 records array 並寫入 localStorage
+         * 2. saveData(record): 寫入本地 LocalStorage 並非同步同步到 Google Sheets
          */
         function saveData(record) {
             const records = loadData();
             records.push(record);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+            
+            // 雲端同步
+            syncToSheet({ action: "create", record });
         }
 
         /**
-         * 3. loadData(): 從 localStorage 讀取，沒有就回傳 []
-         * 包含自動遷移 (Migration)，將舊版本的狀態改為標準 active / done，修復畫面空白問題
+         * 3. loadData(): 從 LocalStorage 讀取資料 (作為離線 Fallback)
          */
         function loadData() {
             const data = localStorage.getItem(STORAGE_KEY);
@@ -315,11 +619,12 @@
             let records = JSON.parse(data);
             let migrated = false;
             
-            // 遷移舊資料的狀態
             records.forEach(r => {
                 if (r.status === 'started') { r.status = 'active'; migrated = true; }
                 if (r.status === 'reflecting') { r.status = 'active'; r.isReflecting = true; migrated = true; }
                 if (r.status === 'completed') { r.status = 'done'; migrated = true; }
+                if (r.isPublic === undefined) { r.isPublic = true; migrated = true; }
+                if (r.cheersCount === undefined) { r.cheersCount = 0; migrated = true; }
             });
 
             if (migrated) {
@@ -329,24 +634,40 @@
         }
 
         /**
-         * 4. updateRecord(id, changes): 更新一筆 record 並寫入 localStorage
+         * 4. updateRecord(id, changes): 更新 record，並非同步寫入 LocalStorage 與 Google Sheets
          */
         function updateRecord(id, changes) {
+            // 先更新本地快照，使用者體驗不中斷
             let records = loadData();
             records = records.map(record => record.id === id ? { ...record, ...changes } : record);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-            applyFilterAndRender(); // 觸發畫面即時更新
+            
+            // 非同步同步到試算表
+            syncToSheet({ action: "update", id, changes });
+            
+            // 觸發畫面即時重新渲染
+            applyFilterAndRender();
         }
 
         /**
-         * 5. renderList(recordsToShow): 把傳入的 records 顯示到頁面
+         * 5. renderList(recordsToShow): 將資料渲染在畫面上
          */
         function renderList(recordsToShow) {
             const listContainer = document.getElementById('main-list-container');
-            listContainer.innerHTML = ''; // 清空現有清單
+            listContainer.innerHTML = ''; 
 
             if (recordsToShow.length === 0) {
-                listContainer.innerHTML = '<div class="empty-state">目前沒有符合的挑戰紀錄。</div>';
+                let emptyMsg = '';
+                if (currentFilter === 'active') {
+                    emptyMsg = '🛋️ 目前沒有進行中的任務。大腦想休息時就好好休息，準備好了再來。';
+                } else if (currentFilter === 'done') {
+                    emptyMsg = '🌱 這裡將會記錄你跨出的每一步，每一步都值得感謝。';
+                } else if (currentFilter === 'community') {
+                    emptyMsg = '🫂 目前還沒有同伴公開分享挑戰。要不要由你來跨出溫暖的第一步？';
+                } else {
+                    emptyMsg = '📋 你的挑戰旅程還沒有紀錄。試著點擊「🧸 跨出第一步」來開始吧。';
+                }
+                listContainer.innerHTML = `<div class="empty-state">${emptyMsg}</div>`;
                 return;
             }
 
@@ -356,46 +677,59 @@
         }
 
         // ==========================================
-        // UI 控制與過濾器 Orchestrator
+        // UI 視圖管理與過濾機制 (優先使用 Google Sheets 資料)
         // ==========================================
-        function applyFilterAndRender() {
-            // 切換視圖 CSS
+        async function applyFilterAndRender() {
             document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
             document.getElementById(currentView).classList.add('active');
 
             if (currentView === 'view-create') return;
 
-            // 實作 Active / Done Filter
-            const allRecords = loadData();
+            let allRecords = [];
+            
+            try {
+                // 優先向雲端 Google Sheets 讀取資料
+                allRecords = await fetchRecordsFromSheet();
+                // 成功取得後同步更新本地 localStorage 備份
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(allRecords));
+            } catch (err) {
+                console.warn("無法與雲端試算表連線，切換為本地離線模式:", err);
+                // 失敗時使用本地離線 Fallback
+                allRecords = loadData();
+            }
+
             let recordsToShow = [];
             const listTitle = document.getElementById('list-title');
 
             if (currentFilter === 'active') {
                 recordsToShow = allRecords.filter(r => r.status === 'active');
-                listTitle.textContent = '🏃 進行中任務 (Active)';
+                listTitle.textContent = '🌱 溫和專注中 (Active)';
             } else if (currentFilter === 'done') {
                 recordsToShow = allRecords.filter(r => r.status === 'done');
-                listTitle.textContent = '🎉 已克服任務 (Done)';
+                listTitle.textContent = '✨ 克服的軌跡 (Done)';
+            } else if (currentFilter === 'community') {
+                // 社群檢視：篩選出所有勾選 isPublic 為 true 的紀錄（不分進行中或已完成）
+                recordsToShow = allRecords.filter(r => r.isPublic === true);
+                listTitle.textContent = '🫂 互相陪伴、溫柔打氣中 (Community)';
             } else {
                 recordsToShow = allRecords;
-                listTitle.textContent = '📋 全部紀錄 (All)';
+                listTitle.textContent = '📋 全部挑戰歷史 (All)';
             }
 
-            // 呼叫規定好的 renderList
             renderList(recordsToShow);
         }
 
         // ==========================================
-        // 卡片 DOM 生成邏輯
+        // 卡片 DOM 生成與微互動邏輯 (整合社群加油按鈕)
         // ==========================================
         function generateCongratsMsg(mood) {
             const msgs = {
-                '輕鬆多了': '太棒了！擔憂總是比實際行動可怕。',
-                '充滿能量': '完美！這就是行動帶來的正向循環！',
-                '精疲力盡': '辛苦了，你撐過來了！現在好好休息吧。',
-                '覺得驕傲': '你絕對值得為自己感到驕傲，繼續保持！'
+                '輕鬆多了': '✨ 摸摸頭，你看！原來行動真的沒有想像中那麼可怕。你跨過最難的門檻了！',
+                '充滿能量': '⚡ 太棒了！這股動力是實實在在的，大腦現在非常感激你的跨出！',
+                '精疲力盡': '💆 雖然過程有些累，但你沒有被抗拒感困住。現在，請好好放鬆，犒賞自己！',
+                '覺得驕傲': '👑 超棒的！今天你展示了對抗焦慮的極致勇氣，為你起立鼓掌！'
             };
-            return msgs[mood] || '恭喜戰勝拖延！';
+            return msgs[mood] || '🎉 溫柔的步伐，累積出強大的自己！';
         }
 
         function createCardDOM(record) {
@@ -411,13 +745,35 @@
             card.querySelector('.value-est-time').textContent = record.estimatedTime;
             card.querySelector('.value-dread').textContent = record.dreadLevel;
 
+            // 動態控制「公開標籤」呈現
+            if (record.isPublic && currentFilter !== 'community') {
+                card.querySelector('.public-badge').style.display = 'inline-flex';
+            }
+
             const viewActive = card.querySelector('.state-active-view');
             const viewReflecting = card.querySelector('.state-reflecting-view');
             const viewDone = card.querySelector('.state-done-view');
 
-            // --- 狀態切換呈現 (依照合約 status 只能是 active/done) ---
+            // --- 核心：社群互動版塊控制 ---
+            const communitySection = card.querySelector('.community-cheer-section');
+            if (record.isPublic) {
+                communitySection.style.display = 'flex';
+                const countValueSpan = communitySection.querySelector('.cheers-count-value');
+                countValueSpan.textContent = record.cheersCount || 0;
+
+                // 綁定「🧡 加油 (+1)」按鈕
+                const cheerBtn = communitySection.querySelector('.btn-cheer');
+                cheerBtn.addEventListener('click', () => {
+                    const newCount = (record.cheersCount || 0) + 1;
+                    
+                    // 利用 updateRecord 單向更新加油數
+                    updateRecord(record.id, { cheersCount: newCount });
+                    showToast(`您溫柔地為「${record.taskName}」點亮了一盞守護微光！🕯️`);
+                });
+            }
+
+            // --- 狀態切換呈現 (status 為 active/done) ---
             if (record.status === 'done') {
-                // Done 狀態
                 viewActive.style.display = 'none';
                 viewReflecting.style.display = 'none';
                 viewDone.style.display = 'block';
@@ -428,7 +784,6 @@
                 card.querySelector('.congrats-message').textContent = generateCongratsMsg(record.reflection.postMood);
                 
             } else if (record.status === 'active' && record.isReflecting) {
-                // Active + 反思UI 狀態
                 viewActive.style.display = 'block';
                 viewReflecting.style.display = 'block';
                 viewDone.style.display = 'none';
@@ -439,17 +794,20 @@
                     const actualTime = card.querySelector('.input-actual-time').value.trim();
                     const postMood = card.querySelector('.input-post-mood').value;
                     
-                    if (!actualTime || actualTime <= 0) { alert('請填寫正確的實際耗時 (分鐘)！'); return; }
+                    if (!actualTime || actualTime <= 0) { 
+                        showToast('請溫柔地填寫正確的實際耗時（分鐘）唷！'); 
+                        return; 
+                    }
                     
-                    // 正式切換為 Done
                     updateRecord(record.id, {
                         status: 'done',
                         isReflecting: false,
                         reflection: { actualTime: Number(actualTime), postMood }
                     });
+                    
+                    showToast('恭喜你，反思記錄已成功保存並同步到雲端！');
                 });
             } else {
-                // 純粹的 Active 狀態
                 viewActive.style.display = 'block';
                 viewReflecting.style.display = 'none';
                 viewDone.style.display = 'none';
@@ -479,7 +837,7 @@
                 });
             }
 
-            // 繪製子任務進度
+            // 繪製墊腳石進度條與清單
             if (record.status === 'active') {
                 const totalSubs = record.subTasks.length;
                 const doneSubs = record.subTasks.filter(st => st.isDone).length;
@@ -519,10 +877,9 @@
         }
 
         // ==========================================
-        // 事件綁定 (Events)
+        // 互動事件綁定
         // ==========================================
         
-        // 導覽列點擊切換 - 修正點擊判定誤差 (.closest)
         document.getElementById('nav-buttons').addEventListener('click', (e) => {
             const btn = e.target.closest('.nav-btn');
             if (btn) {
@@ -538,23 +895,21 @@
             }
         });
 
-        // 新增子任務欄位
         document.getElementById('addSubTaskBtn').addEventListener('click', () => {
             const container = document.getElementById('subTasksContainer');
             const input = document.createElement('input');
             input.type = 'text';
             input.name = 'subTask';
-            input.placeholder = `子任務 ${container.children.length + 1}`;
+            input.placeholder = `輕鬆的步驟 ${container.children.length + 1}`;
             container.appendChild(input);
         });
 
-        // 提交表單
         document.getElementById('taskForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
             
             if (formData.get('estimatedTime') <= 0) {
-                alert("預估時間必須大於 0 分鐘！");
+                showToast("時間只要設定大於 0 的數字就可以囉！");
                 return;
             }
 
@@ -567,16 +922,14 @@
                 <input type="text" name="subTask" placeholder="子任務 2 (例如：下載今年的表格)">
             `;
             
-            // 自動切換到進行中列表
+            showToast("任務建立成功！已同步至 Google Sheets ☕");
+            
             const runningBtn = document.querySelector('[data-filter="active"]');
             if(runningBtn) runningBtn.click();
         });
 
-        // 初始載入
         window.onload = applyFilterAndRender;
 
     </script>
 </body>
 </html>
-
-
