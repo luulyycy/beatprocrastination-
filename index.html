@@ -1,0 +1,565 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>戰勝拖延行動清單</title>
+    <style>
+        /* ==========================================
+           全域與排版樣式
+           ========================================== */
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --success: #10b981;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            padding: 20px 20px 120px 20px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header { text-align: center; margin-bottom: 20px; }
+        header h1 { color: var(--primary); font-size: 2rem; margin-bottom: 8px; }
+
+        /* ==========================================
+           導覽列 (Row of Buttons)
+           ========================================== */
+        .nav-buttons {
+            display: flex; gap: 10px; margin-bottom: 30px;
+            background: var(--card-bg); padding: 10px; border-radius: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); flex-wrap: wrap; justify-content: center;
+        }
+        .nav-btn {
+            background: transparent; border: none; padding: 10px 20px;
+            border-radius: 20px; font-size: 1rem; font-weight: 600;
+            color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+        }
+        .nav-btn:hover { background: #eef2ff; color: var(--primary); }
+        .nav-btn.active { background: var(--primary); color: white; }
+
+        /* 視圖切換 */
+        .view-section { display: none; width: 100%; max-width: 800px; animation: fadeIn 0.3s; }
+        .view-section.active { display: block; }
+        .section-title { margin-bottom: 20px; color: var(--text-main); text-align: center; }
+
+        /* ==========================================
+           表單區塊樣式
+           ========================================== */
+        .task-creation-card {
+            background: var(--card-bg); padding: 24px; border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.95rem; }
+        .help-text { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+        
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        input[type="text"], input[type="number"], select {
+            width: 100%; padding: 10px; border: 1px solid var(--border);
+            border-radius: 6px; font-size: 1rem; margin-bottom: 8px;
+        }
+        input:focus, select:focus { outline: none; border-color: var(--primary); }
+        .time-input-wrapper { position: relative; }
+        .time-suffix { position: absolute; right: 15px; top: 12px; color: var(--text-muted); }
+
+        button.btn-primary, button.btn-submit-reflection {
+            background: var(--primary); color: white; padding: 14px; font-size: 1.05rem;
+            width: 100%; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 10px;
+        }
+        button.btn-primary:hover { background: var(--primary-hover); }
+        button.btn-secondary {
+            background: #e5e7eb; color: var(--text-main); padding: 8px 16px;
+            font-size: 0.9rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;
+        }
+
+        /* ==========================================
+           清單與卡片樣式
+           ========================================== */
+        .task-list { display: flex; flex-direction: column; gap: 16px; }
+        .empty-state { text-align: center; padding: 40px; color: var(--text-muted); background: var(--card-bg); border-radius: 12px; border: 2px dashed var(--border); }
+
+        .task-card {
+            background: var(--card-bg); border-radius: 8px; padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 5px solid var(--primary);
+        }
+        .task-card.status-done { border-left-color: var(--success); opacity: 0.9; }
+
+        .card-header { margin-bottom: 16px; }
+        .task-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+        .task-meta { font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 12px; }
+        .badge { background: #f3f4f6; padding: 4px 8px; border-radius: 6px; font-weight: 600; }
+        
+        .progress-section { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; font-size: 0.85rem;}
+        progress { flex-grow: 1; height: 8px; border-radius: 4px; }
+        progress::-webkit-progress-bar { background: var(--border); border-radius: 4px; }
+        progress::-webkit-progress-value { background: var(--primary); border-radius: 4px; }
+
+        .sub-tasks-list { list-style: none; margin-bottom: 16px; font-size: 0.95rem; }
+        .sub-tasks-list li { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .sub-tasks-list input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+
+        .main-action label {
+            display: flex; align-items: center; gap: 8px; padding: 12px;
+            background: #f8fafc; border: 1px dashed var(--border); border-radius: 6px; cursor: pointer; transition: all 0.2s;
+        }
+        .main-action.locked label { opacity: 0.6; cursor: not-allowed; background: #f3f4f6; }
+        .unlock-msg { font-size: 0.85rem; color: #dc2626; margin-left: auto; }
+
+        .state-reflecting-view { background: #f0fdfa; padding: 16px; border-radius: 8px; border: 1px solid #ccfbf1; }
+        .state-reflecting-view h4 { color: #0f766e; margin-bottom: 12px; }
+        
+        .state-completed-view { background: #ecfdf5; padding: 16px; border-radius: 8px; font-size: 0.95rem; }
+        .reflection-results p { margin-bottom: 6px; }
+        .congrats-message { margin-top: 12px; font-weight: bold; color: var(--success); padding-top: 12px; border-top: 1px dashed #a7f3d0;}
+        .strike { text-decoration: line-through; color: var(--text-muted); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🚀 戰勝拖延行動清單</h1>
+    </header>
+
+    <!-- 導覽列：作為 Filter 切換器 -->
+    <nav class="nav-buttons" id="nav-buttons">
+        <button class="nav-btn active" data-view="view-create">➕ 新增挑戰</button>
+        <button class="nav-btn" data-view="view-list" data-filter="active">🏃 進行中</button>
+        <button class="nav-btn" data-view="view-list" data-filter="done">🎉 已完成</button>
+        <button class="nav-btn" data-view="view-list" data-filter="all">📋 全部紀錄</button>
+    </nav>
+
+    <main style="width: 100%; display: flex; justify-content: center;">
+        
+        <!-- 表單視圖 -->
+        <section id="view-create" class="view-section active">
+            <h2 class="section-title">建立新挑戰</h2>
+            <div class="task-creation-card">
+                <form id="taskForm">
+                    <div class="form-group">
+                        <label for="taskName">任務名稱 (Task Name)：</label>
+                        <input type="text" id="taskName" name="taskName" placeholder="例如：完成報稅文件" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="estimatedTime">預估耗時 (Estimated Time)：</label>
+                        <div class="time-input-wrapper">
+                            <input type="number" id="estimatedTime" name="estimatedTime" placeholder="例如：45" min="1" required>
+                            <span class="time-suffix">分鐘</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dreadLevel">焦慮/抗拒程度 (Dread Level)：</label>
+                        <select id="dreadLevel" name="dreadLevel" required>
+                            <option value="低">低 - 只是有點懶</option>
+                            <option value="中">中 - 覺得有些麻煩</option>
+                            <option value="高">高 - 想到就覺得壓力很大</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>墊腳石子任務 (Stepping Stones)：</label>
+                        <p class="help-text">寫下能幫你開始的最小行動 (全部打勾後才能解鎖完成任務)</p>
+                        <div id="subTasksContainer">
+                            <input type="text" name="subTask" placeholder="子任務 1 (例如：打開電腦並登入)" required>
+                            <input type="text" name="subTask" placeholder="子任務 2 (例如：下載今年的表格)">
+                        </div>
+                        <button type="button" id="addSubTaskBtn" class="btn-secondary">+ 新增更多墊腳石</button>
+                    </div>
+
+                    <button type="submit" class="btn-primary">開始挑戰</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- 列表視圖：單一容器，依照 recordsToShow 動態渲染 -->
+        <section id="view-list" class="view-section">
+            <h2 class="section-title" id="list-title">任務列表</h2>
+            <div class="task-list" id="main-list-container"></div>
+        </section>
+
+    </main>
+
+    <!-- 任務卡片的 HTML 模板 -->
+    <template id="task-card-template">
+        <article class="task-card" data-task-id="">
+            <header class="card-header">
+                <h3 class="task-title"></h3>
+                <div class="task-meta">
+                    <span class="badge">⏳ 預估：<span class="value-est-time"></span> 分鐘</span>
+                    <span class="badge">😨 焦慮：<span class="value-dread"></span></span>
+                </div>
+            </header>
+
+            <div class="state-active-view">
+                <div class="progress-section">
+                    <label>進度：</label>
+                    <progress class="task-progress" value="0" max="100"></progress>
+                    <span class="progress-text">0%</span>
+                </div>
+                <div class="sub-tasks-list"></div>
+                <div class="main-action">
+                    <label>
+                        <input type="checkbox" class="main-task-checkbox">
+                        <strong>我已完成主任務，準備反思！</strong>
+                        <span class="unlock-msg">🔒 需完成所有墊腳石</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="state-reflecting-view" style="display: none;">
+                <h4>🎉 恭喜完成！來做個快速反思：</h4>
+                <div class="form-group">
+                    <label>實際耗時 (Actual Time)：</label>
+                    <div class="time-input-wrapper">
+                        <input type="number" class="input-actual-time" placeholder="例如：25" min="1">
+                        <span class="time-suffix">分鐘</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>現在的心情 (Post-Action Mood)：</label>
+                    <select class="input-post-mood">
+                        <option value="輕鬆多了">輕鬆多了 (Relieved)</option>
+                        <option value="充滿能量">充滿能量 (Energized)</option>
+                        <option value="精疲力盡">精疲力盡 (Drained but Done)</option>
+                        <option value="覺得驕傲">覺得驕傲 (Proud)</option>
+                    </select>
+                </div>
+                <button type="button" class="btn-submit-reflection">送出並標記完成 (Done)</button>
+            </div>
+
+            <div class="state-done-view" style="display: none;">
+                <div class="reflection-results">
+                    <p><strong>⏱️ 實際耗時：</strong> <span class="res-actual-time"></span> 分鐘</p>
+                    <p><strong>✨ 任務後心情：</strong> <span class="res-post-mood"></span></p>
+                </div>
+                <div class="congrats-message"></div>
+            </div>
+        </article>
+    </template>
+
+    <script>
+        // ==========================================
+        // 核心設定與狀態
+        // ==========================================
+        const STORAGE_KEY = 'records';
+        let currentView = 'view-create';
+        let currentFilter = 'active';
+
+        // ==========================================
+        // Contract Functions (嚴格遵循規範)
+        // ==========================================
+
+        /**
+         * 1. createRecord(formData): 根據表單建立一筆新 record
+         */
+        function createRecord(formData) {
+            const subTaskInputs = document.querySelectorAll('input[name="subTask"]');
+            const subTasks = [];
+            
+            subTaskInputs.forEach((input, index) => {
+                if (input.value.trim() !== '') {
+                    subTasks.push({ id: `sub_${index}`, text: input.value.trim(), isDone: false });
+                }
+            });
+
+            return {
+                id: Date.now().toString(),
+                createdAt: new Date().toISOString(),
+                status: 'active', // 嚴格規定：預設 active
+                isReflecting: false, // 自訂欄位：控制 UI 進入反思狀態
+                taskName: formData.get('taskName'),
+                dreadLevel: formData.get('dreadLevel'),
+                estimatedTime: Number(formData.get('estimatedTime')),
+                subTasks: subTasks,
+                reflection: { actualTime: '', postMood: '' }
+            };
+        }
+
+        /**
+         * 2. saveData(record): 只負責新增到 records array 並寫入 localStorage
+         */
+        function saveData(record) {
+            const records = loadData();
+            records.push(record);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+        }
+
+        /**
+         * 3. loadData(): 從 localStorage 讀取，沒有就回傳 []
+         */
+        function loadData() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : [];
+        }
+
+        /**
+         * 4. updateRecord(id, changes): 更新一筆 record 並寫入 localStorage
+         */
+        function updateRecord(id, changes) {
+            let records = loadData();
+            records = records.map(record => record.id === id ? { ...record, ...changes } : record);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+            applyFilterAndRender(); // 觸發畫面即時更新
+        }
+
+        /**
+         * 5. renderList(recordsToShow): 把傳入的 records 顯示到頁面
+         */
+        function renderList(recordsToShow) {
+            const listContainer = document.getElementById('main-list-container');
+            listContainer.innerHTML = ''; // 清空現有清單
+
+            if (recordsToShow.length === 0) {
+                listContainer.innerHTML = '<div class="empty-state">目前沒有符合的挑戰紀錄。</div>';
+                return;
+            }
+
+            recordsToShow.forEach(record => {
+                listContainer.appendChild(createCardDOM(record));
+            });
+        }
+
+        // ==========================================
+        // UI 控制與過濾器 Orchestrator
+        // ==========================================
+        function applyFilterAndRender() {
+            // 切換視圖 CSS
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(currentView).classList.add('active');
+
+            if (currentView === 'view-create') return;
+
+            // 實作 Active / Done Filter
+            const allRecords = loadData();
+            let recordsToShow = [];
+            const listTitle = document.getElementById('list-title');
+
+            if (currentFilter === 'active') {
+                recordsToShow = allRecords.filter(r => r.status === 'active');
+                listTitle.textContent = '🏃 進行中任務 (Active)';
+            } else if (currentFilter === 'done') {
+                recordsToShow = allRecords.filter(r => r.status === 'done');
+                listTitle.textContent = '🎉 已克服任務 (Done)';
+            } else {
+                recordsToShow = allRecords;
+                listTitle.textContent = '📋 全部紀錄 (All)';
+            }
+
+            // 呼叫規定好的 renderList
+            renderList(recordsToShow);
+        }
+
+        // ==========================================
+        // 卡片 DOM 生成邏輯
+        // ==========================================
+        function generateCongratsMsg(mood) {
+            const msgs = {
+                '輕鬆多了': '太棒了！擔憂總是比實際行動可怕。',
+                '充滿能量': '完美！這就是行動帶來的正向循環！',
+                '精疲力盡': '辛苦了，你撐過來了！現在好好休息吧。',
+                '覺得驕傲': '你絕對值得為自己感到驕傲，繼續保持！'
+            };
+            return msgs[mood] || '恭喜戰勝拖延！';
+        }
+
+        function createCardDOM(record) {
+            const template = document.getElementById('task-card-template');
+            const clone = template.content.cloneNode(true);
+            const card = clone.querySelector('.task-card');
+            
+            card.dataset.taskId = record.id;
+            card.classList.add(`status-${record.status}`);
+            
+            const titleEl = card.querySelector('.task-title');
+            titleEl.textContent = record.taskName;
+            card.querySelector('.value-est-time').textContent = record.estimatedTime;
+            card.querySelector('.value-dread').textContent = record.dreadLevel;
+
+            const viewActive = card.querySelector('.state-active-view');
+            const viewReflecting = card.querySelector('.state-reflecting-view');
+            const viewDone = card.querySelector('.state-done-view');
+
+            // --- 狀態切換呈現 (依照合約 status 只能是 active/done) ---
+            if (record.status === 'done') {
+                // Done 狀態
+                viewActive.style.display = 'none';
+                viewReflecting.style.display = 'none';
+                viewDone.style.display = 'block';
+                titleEl.classList.add('strike');
+
+                card.querySelector('.res-actual-time').textContent = record.reflection.actualTime;
+                card.querySelector('.res-post-mood').textContent = record.reflection.postMood;
+                card.querySelector('.congrats-message').textContent = generateCongratsMsg(record.reflection.postMood);
+                
+            } else if (record.status === 'active' && record.isReflecting) {
+                // Active + 反思UI 狀態
+                viewActive.style.display = 'block';
+                viewReflecting.style.display = 'block';
+                viewDone.style.display = 'none';
+                card.querySelector('.main-action').style.display = 'none';
+
+                const submitBtn = card.querySelector('.btn-submit-reflection');
+                submitBtn.addEventListener('click', () => {
+                    const actualTime = card.querySelector('.input-actual-time').value.trim();
+                    const postMood = card.querySelector('.input-post-mood').value;
+                    
+                    if (!actualTime || actualTime <= 0) { alert('請填寫正確的實際耗時 (分鐘)！'); return; }
+                    
+                    // 正式切換為 Done
+                    updateRecord(record.id, {
+                        status: 'done',
+                        isReflecting: false,
+                        reflection: { actualTime: Number(actualTime), postMood }
+                    });
+                });
+            } else {
+                // 純粹的 Active 狀態
+                viewActive.style.display = 'block';
+                viewReflecting.style.display = 'none';
+                viewDone.style.display = 'none';
+
+                const totalSubs = record.subTasks.length;
+                const doneSubs = record.subTasks.filter(st => st.isDone).length;
+                const isAllSubsDone = totalSubs === 0 || doneSubs === totalSubs;
+
+                const mainActionDiv = card.querySelector('.main-action');
+                const mainTaskCheckbox = card.querySelector('.main-task-checkbox');
+                const unlockMsg = card.querySelector('.unlock-msg');
+
+                if (isAllSubsDone) {
+                    mainActionDiv.classList.remove('locked');
+                    mainTaskCheckbox.disabled = false;
+                    unlockMsg.style.display = 'none';
+                } else {
+                    mainActionDiv.classList.add('locked');
+                    mainTaskCheckbox.disabled = true;
+                    unlockMsg.style.display = 'inline';
+                }
+
+                mainTaskCheckbox.addEventListener('change', (e) => {
+                    if (e.target.checked && isAllSubsDone) {
+                        updateRecord(record.id, { isReflecting: true });
+                    }
+                });
+            }
+
+            // 繪製子任務進度
+            if (record.status === 'active') {
+                const totalSubs = record.subTasks.length;
+                const doneSubs = record.subTasks.filter(st => st.isDone).length;
+                const progressPct = totalSubs === 0 ? 100 : Math.round((doneSubs / totalSubs) * 100);
+
+                card.querySelector('.task-progress').value = progressPct;
+                card.querySelector('.progress-text').textContent = `${progressPct}%`;
+
+                const subListContainer = card.querySelector('.sub-tasks-list');
+                record.subTasks.forEach(st => {
+                    const li = document.createElement('li');
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.checked = st.isDone;
+                    checkbox.id = `sub_${record.id}_${st.id}`;
+                    
+                    const label = document.createElement('label');
+                    label.htmlFor = checkbox.id;
+                    label.textContent = st.text;
+                    if (st.isDone) label.classList.add('strike');
+
+                    checkbox.addEventListener('change', (e) => {
+                        const updatedSubTasks = record.subTasks.map(sub => 
+                            sub.id === st.id ? { ...sub, isDone: e.target.checked } : sub
+                        );
+                        updateRecord(record.id, { subTasks: updatedSubTasks });
+                    });
+
+                    li.appendChild(checkbox);
+                    li.appendChild(label);
+                    subListContainer.appendChild(li);
+                });
+            }
+
+            return card;
+        }
+
+        // ==========================================
+        // 事件綁定 (Events)
+        // ==========================================
+        
+        // 導覽列點擊切換
+        document.getElementById('nav-buttons').addEventListener('click', (e) => {
+            if (e.target.classList.contains('nav-btn')) {
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+
+                currentView = e.target.getAttribute('data-view');
+                if(e.target.hasAttribute('data-filter')) {
+                    currentFilter = e.target.getAttribute('data-filter');
+                }
+                
+                applyFilterAndRender();
+            }
+        });
+
+        // 新增子任務欄位
+        document.getElementById('addSubTaskBtn').addEventListener('click', () => {
+            const container = document.getElementById('subTasksContainer');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.name = 'subTask';
+            input.placeholder = `子任務 ${container.children.length + 1}`;
+            container.appendChild(input);
+        });
+
+        // 提交表單
+        document.getElementById('taskForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            if (formData.get('estimatedTime') <= 0) {
+                alert("預估時間必須大於 0 分鐘！");
+                return;
+            }
+
+            const newRecord = createRecord(formData);
+            saveData(newRecord); // 只儲存，畫面更新交給 applyFilterAndRender
+            
+            e.target.reset();
+            document.getElementById('subTasksContainer').innerHTML = `
+                <input type="text" name="subTask" placeholder="子任務 1 (例如：打開電腦並登入)" required>
+                <input type="text" name="subTask" placeholder="子任務 2 (例如：下載今年的表格)">
+            `;
+            
+            // 自動切換到進行中列表
+            document.querySelector('[data-filter="active"]').click();
+        });
+
+        // 初始載入時保持狀態或預設頁面
+        window.onload = applyFilterAndRender;
+
+    </script>
+</body>
+</html>
+
+
+```
